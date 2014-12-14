@@ -15,11 +15,11 @@ module EventMachine
       private
 
       def connect_parse_response
-        unless @connect_data =~ %r{\AHTTP/1\.[01] 200 .*\r\n\r\n}m
-          raise CONNECTError.new, "Unexpected response: #{@connect_data}"
+        if @connect_data =~ %r{\AHTTP/1\.[01] 200 .*\r\n\r\n}m
+          connect_unhook
+        else
+          @connect_deferrable.fail(CONNECTError.new("Unexpected response: #{@connect_data}"))
         end
-
-        connect_unhook
       rescue Exception => e
         @connect_deferrable.fail e
       end
